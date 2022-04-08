@@ -11,19 +11,8 @@
 
 ## Installation
 
-This is a private package, so your project's **composer.json** must know the repo:
-
-```json
-"require": {
-	"germania/fabricsapi-client": "^3.0"
-},
-
-"repositories": [
-    {
-        "type": "vcs",
-        "url":  "git@bitbucket.org:germania/fabricsapi-client.git"
-    }
-]
+```bash
+composer require germania-kg/fabricsapi-client "^4.0"
 ```
 
 
