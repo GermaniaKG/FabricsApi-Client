@@ -1,5 +1,5 @@
 {
-    "name": "germania/fabricsapi-client",
+    "name": "germania-kg/fabricsapi-client",
     "description": "HTTP-Client for Germania's Fabrics API",
 
     "license": "MIT",
