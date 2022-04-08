@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	colors="true"
+	stopOnFailure="true"
+	bootstrap="tests/bootstrap.php"
+	beStrictAboutCoversAnnotation="true"
+	verbose="true"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory>src</directory>
+    </include>
+    <report>
+      <clover outputFile="tests/logs/clover.xml"/>
+      <html outputDirectory="tests/logs/html/"/>
+      <text outputFile="php://stdout" showUncoveredFiles="true"/>
+    </report>
+  </coverage>
+
+  <testsuites>
+    <testsuite name="Test Suite">
+      <directory>tests/src</directory>
+    </testsuite>
+  </testsuites>
+
+	<php>
+	  <env name="FABRICS_API" value="https://api.test.com/" />
+	  <env name="FABRICS_SLUG" value="yourFabricsSlugGoesHere" />
+	  <env name="FABRIC_NUMBER" value="00000" />
+	</php>
+
+  <logging>
+    <testdoxHtml outputFile="tests/logs/testdox.html"/>
+    <testdoxText outputFile="tests/logs/testdox.txt"/>
+  </logging>
+</phpunit>

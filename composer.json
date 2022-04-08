@@ -1,0 +1,58 @@
+{
+    "name": "germania/fabricsapi-client",
+    "description": "HTTP-Client for Germania's Fabrics API",
+
+    "license": "MIT",
+
+    "authors": [
+        {
+            "name":  "Carsten Witt",
+            "email": "carsten.witt@germania-kg.com",
+            "role":  "Developer"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Germania\\FabricsApiClient\\": "src"
+        }
+    },
+
+    "require": {
+        "php": "^7.3|^8.0",
+        "psr/log": "^1.1",
+        "psr/cache": "^1.0",
+        "guzzlehttp/guzzle": "^6.0|^7.0",
+        "germania-kg/fabrics": "^5.0",
+        "germania-kg/cachecallable": "^2.0",
+        "germania-kg/response-decoder": "^1.0"
+    },
+
+
+
+    "autoload-dev": {
+          "psr-4": {
+            "tests\\": "tests/src"
+          }
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "php-coveralls/php-coveralls": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.0|^3.0",
+        "spatie/phpunit-watcher": "^1.0"
+    },
+
+    "scripts": {
+        "phpcs":       "php-cs-fixer fix --verbose --diff --dry-run src/",
+        "phpcs-apply": "php-cs-fixer fix --verbose --diff src/",
+        "phpunit": "phpunit --colors=auto --coverage-text",
+        "watch": "phpunit-watcher watch",
+        "test": [
+            "@phpcs",
+            "@phpunit"
+        ]
+    }
+
+}
