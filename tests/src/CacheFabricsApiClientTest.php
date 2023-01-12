@@ -24,15 +24,26 @@ class CacheFabricsApiClientTest extends \PHPUnit\Framework\TestCase
 	public $fabrics_slug;
 	public $fabric_number;
 
+    /**
+     * @var array
+     */
+    public static $guzzle_options = array();
+
 
 	public function setUp() : void
 	{
 		$this->fabrics_slug = getenv('FABRICS_SLUG');
 		$this->fabric_number = getenv('FABRIC_NUMBER');
 
-		$this->guzzle = new \GuzzleHttp\Client([
+        $found_certs = glob(realpath(dirname(__DIR__)) . "/*.pem");
+        $ca_cert = $found_certs[0] ?? null;
+        if ($ca_cert) {
+            static::$guzzle_options = array_merge(static::$guzzle_options, ['verify' => $ca_cert]);
+        }
+
+        $this->guzzle = new \GuzzleHttp\Client(array_merge(static::$guzzle_options, [
             'base_uri' => getenv('FABRICS_API')
-        ]);
+        ]));
 
 		$this->api_client = new FabricsApiClient( $this->guzzle );
 	}
@@ -43,11 +54,10 @@ class CacheFabricsApiClientTest extends \PHPUnit\Framework\TestCase
 	{
 		$cache_item = $this->createCacheItem();
 		$cache_itempool = $this->createCacheItemPool($cache_item);
-		$cache_lifetime = 30;
+		$cache_lifetime = 5;
 
 		$sut = new CacheFabricsApiClient( $this->api_client, $cache_itempool, $cache_lifetime );
 		$this->assertInstanceOf( FabricsApiClientInterface::class, $sut );
-
 		return $sut;
 	}
 

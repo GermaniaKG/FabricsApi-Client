@@ -77,11 +77,12 @@ class CacheFabricsApiClient implements FabricsApiClientInterface
             $cache_key_data[] = "sort=$sort";
         }
 
-
         $cache_key = implode( $this->cache_key_separator, $cache_key_data);
+
 
         $cacheResult =  ($this->cache_callable)($cache_key, function() use ( $collection, $search, $sort) {
             try {
+
                 return $this->api_client->collection($collection, $search, $sort);
             }
             catch (\Throwable $e) {
@@ -95,6 +96,31 @@ class CacheFabricsApiClient implements FabricsApiClientInterface
 
         return $cacheResult;
     }
+
+    /**
+     * @inheritDoc
+     * @return \ArrayIterator
+     */
+    public function collections( ) : iterable
+    {
+        $cache_key = $this->createCacheKey("list", "collections");
+        $cacheResult =  ($this->cache_callable)($cache_key, function() {
+            try {
+                return $this->api_client->collections();
+            }
+            catch (\Throwable $e) {
+                return ExceptionSimplifiedExcerpt::fromThrowable($e);
+            }
+        });
+
+        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+            throw $cacheResult->restoreThrowable();
+        }
+
+        return $cacheResult;
+    }
+
+
 
 
     /**
