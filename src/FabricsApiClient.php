@@ -47,6 +47,17 @@ class FabricsApiClient implements FabricsApiClientInterface
     }
 
 
+    /**
+     * @inheritDoc
+     * @return \ArrayIterator
+     */
+    public function collections( ) : iterable
+    {
+        $url = "collections";
+        $fabrics = $this->askApi($url);
+        return new \ArrayIterator( $fabrics );
+    }
+
 
 
     /**
@@ -56,14 +67,13 @@ class FabricsApiClient implements FabricsApiClientInterface
     public function collection( string $collection, string $search = null, $sort = null ) : iterable
     {
         $url = sprintf("collections/%s", $collection);
-
         $query_params = array();
 
         if ($search) {
             $query_params['search'] = $search;
         }
 
-        if ($sort) {
+        if (!is_null($sort)) {
             if (is_array($sort)) {
                 $sort = implode(",", $sort);
             }
@@ -75,7 +85,6 @@ class FabricsApiClient implements FabricsApiClientInterface
                 $query_params['sort'] = $sort;
             }
         }
-
         $fabrics = $this->askApi( $url, $query_params);
         $fabrics = array_map($this->fabric_factory, $fabrics);
 
@@ -151,7 +160,6 @@ class FabricsApiClient implements FabricsApiClientInterface
         if (!empty($query_params)) {
             $options['query'] = $query_params;
         }
-
 
         try {
             // Will return ResponseInterface!

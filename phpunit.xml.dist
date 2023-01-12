@@ -25,9 +25,9 @@
   </testsuites>
 
 	<php>
-	  <env name="FABRICS_API" value="https://api.test.com/" />
-	  <env name="FABRICS_SLUG" value="yourFabricsSlugGoesHere" />
-	  <env name="FABRIC_NUMBER" value="00000" />
+		<env name="FABRICS_API" value="https://fabrics.germania-kg.com/api/v2/"/>
+		<env name="FABRICS_SLUG" value="trendkollektion2020"/>
+		<env name="FABRIC_NUMBER" value="5-2021"/>
 	</php>
 
   <logging>

@@ -31,7 +31,7 @@ class ExceptionSimplifiedExcerpt
 	 */
 	public static function fromThrowable( $e )
 	{
-		$res = new static();
+		$res = new ExceptionSimplifiedExcerpt();
         $res->message = $e->getMessage();
         $res->php_throwable_class = get_class($e);
         $res->code = $e->getCode();

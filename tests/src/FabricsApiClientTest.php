@@ -13,95 +13,125 @@ class FabricsApiClientTest extends \PHPUnit\Framework\TestCase
 {
     use ProphecyTrait;
 
-	public $guzzle;
-	public $cache_itempool;
-	public $fabrics_slug;
-	public $fabric_number;
+    public $guzzle;
+    public $cache_itempool;
+    public $fabrics_slug;
+    public $fabric_number;
 
-	public function setUp() : void
-	{
-		$this->fabric_number = getenv('FABRIC_NUMBER');
-		$this->fabrics_slug = getenv('FABRICS_SLUG');
+    /**
+     * @var CacheItemPoolInterface
+     */
+    public $cache_itempool_mock;
 
-		$this->guzzle = new \GuzzleHttp\Client([
+    /**
+     * @var array
+     */
+    public static $guzzle_options = array();
+
+
+    public function setUp() : void
+    {
+        $this->fabric_number = getenv('FABRIC_NUMBER');
+        $this->fabrics_slug = getenv('FABRICS_SLUG');
+
+        $found_certs = glob(realpath(dirname(__DIR__)) . "/*.pem");
+        $ca_cert = $found_certs[0] ?? null;
+        if ($ca_cert) {
+            static::$guzzle_options = array_merge(static::$guzzle_options, ['verify' => $ca_cert]);
+        }
+
+
+        $this->guzzle = new \GuzzleHttp\Client(array_merge(static::$guzzle_options, [
             'base_uri' => getenv('FABRICS_API')
-        ]);
+        ]));
 
-		$this->cache_itempool_mock = $this->prophesize(CacheItemPoolInterface::class);
-	}
-
-
-	public function testInstantiation()
-	{
-		$cip = $this->cache_itempool_mock->reveal();
-		$sut = new FabricsApiClient( $this->guzzle );
-
-		$this->assertInstanceOf( FabricsApiClientInterface::class, $sut );
-		return $sut;
-	}
+        $this->cache_itempool_mock = $this->prophesize(CacheItemPoolInterface::class);
+    }
 
 
-	/**
-	 * @depends testInstantiation
-	 */
-	public function testAllFabricsInCollection( $sut )
-	{
-		$many_fabrics = $sut->collection($this->fabrics_slug);
-		$this->assertInstanceOf( \ArrayIterator::class, $many_fabrics );
-		foreach ($many_fabrics as $f) {
-			$this->assertInstanceOf( FabricInterface::class, $f );
-		}
-	}
+    public function testInstantiation()
+    {
+        $cip = $this->cache_itempool_mock->reveal();
+        $sut = new FabricsApiClient( $this->guzzle );
 
-	/**
-	 * @depends testInstantiation
-	 */
-	public function testTransparenciesInCollection($sut)
-	{
-		$transparencies = $sut->collectionTransparencies($this->fabrics_slug);
-		$this->assertInstanceOf( \ArrayIterator::class, $transparencies );
-		foreach ($transparencies as $t) {
-			$this->assertIsArray( $t );
-		}
-	}
+        $this->assertInstanceOf( FabricsApiClientInterface::class, $sut );
+        return $sut;
+    }
 
 
-	/**
-	 * @depends testInstantiation
-	 */
-	public function testColorsInCollection($sut)
-	{
-		$colors = $sut->collectionColors($this->fabrics_slug);
-		$this->assertInstanceOf( \ArrayIterator::class, $colors );
-		foreach ($colors as $t) {
-			$this->assertIsArray( $t );
-		}
-	}
+    /**
+     * @depends testInstantiation
+     */
+    public function testAllCollections( $sut )
+    {
+        $collections = $sut->collections();
+        $this->assertInstanceOf( \ArrayIterator::class, $collections );
+        foreach ($collections as $f) {
+            $this->assertIsArray($f );
+        }
+    }
 
-	/**
-	 * @depends testInstantiation
-	 */
-	public function testSingleFabric($sut)
-	{
-		$single_fabric = $sut->fabric($this->fabrics_slug, $this->fabric_number);
-		$this->assertInstanceOf( FabricInterface::class, $single_fabric );
+    /**
+     * @depends testInstantiation
+     */
+    public function testAllFabricsInCollection( $sut )
+    {
+        $many_fabrics = $sut->collection($this->fabrics_slug);
+        $this->assertInstanceOf( \ArrayIterator::class, $many_fabrics );
+        foreach ($many_fabrics as $f) {
+            $this->assertInstanceOf( FabricInterface::class, $f );
+        }
+    }
+
+    /**
+     * @depends testInstantiation
+     */
+    public function testTransparenciesInCollection($sut)
+    {
+        $transparencies = $sut->collectionTransparencies($this->fabrics_slug);
+        $this->assertInstanceOf( \ArrayIterator::class, $transparencies );
+        foreach ($transparencies as $t) {
+            $this->assertIsArray( $t );
+        }
+    }
+
+
+    /**
+     * @depends testInstantiation
+     */
+    public function testColorsInCollection($sut)
+    {
+        $colors = $sut->collectionColors($this->fabrics_slug);
+        $this->assertInstanceOf( \ArrayIterator::class, $colors );
+        foreach ($colors as $t) {
+            $this->assertIsArray( $t );
+        }
+    }
+
+    /**
+     * @depends testInstantiation
+     */
+    public function testSingleFabric($sut)
+    {
+        $single_fabric = $sut->fabric($this->fabrics_slug, $this->fabric_number);
+        $this->assertInstanceOf( FabricInterface::class, $single_fabric );
         $this->assertEquals( $single_fabric->getFabricNumber(),  $this->fabric_number);
         $this->assertEquals( $single_fabric->collection_slug,  $this->fabrics_slug);
-	}
+    }
 
 
 
 
 
 
-	/**
-	 * @depends testInstantiation
-	 */
-	public function testNotFoundException( $sut )
-	{
-		$this->expectException( FabricNotFoundException::class );
-		$sut->fabric($this->fabrics_slug, "DoesNotExist");
-	}
+    /**
+     * @depends testInstantiation
+     */
+    public function testNotFoundException( $sut )
+    {
+        $this->expectException( FabricNotFoundException::class );
+        $sut->fabric($this->fabrics_slug, "DoesNotExist");
+    }
 
 
 }
