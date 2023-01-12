@@ -7,6 +7,7 @@
 
 # Germania KG · FabricsAPI client
 
+[![Tests](https://github.com/GermaniaKG/FabricsApi-Client//actions/workflows/tests.yml/badge.svg)](https://github.com/GermaniaKG/FabricsApi-Client//actions/workflows/tests.yml)
 
 
 ## Installation
