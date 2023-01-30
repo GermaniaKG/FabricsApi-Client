@@ -47,6 +47,9 @@ vendor
 var/*
 tests/logs
 phpunit.xml
-.php_cs*
+
+.php-cs-fixer.*
+!.php-cs-fixer.dist.php
+
 .phpunit.result.cache
 *.pem

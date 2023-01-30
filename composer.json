@@ -41,16 +41,20 @@
         "phpspec/prophecy-phpunit": "^2.0",
         "php-coveralls/php-coveralls": "^2.0",
         "friendsofphp/php-cs-fixer": "^2.0|^3.0",
-        "spatie/phpunit-watcher": "^1.0",
         "phpspec/prophecy": "^1.16",
         "phpstan/phpstan": "^1.9"
     },
 
     "scripts": {
-        "phpcs":       "php-cs-fixer fix --verbose --diff --dry-run src/",
-        "phpcs-apply": "php-cs-fixer fix --verbose --diff src/",
-        "phpunit": "phpunit --colors=auto --coverage-text",
-        "watch": "phpunit-watcher watch",
+        "phpstan"         :  ["@phpstan:analyse"],
+        "phpstan:analyse" : "phpstan analyse",
+
+    		"phpcs"       : ["@phpcs:dry"],
+    		"phpcs:dry"   : "php-cs-fixer fix --verbose --diff --dry-run",
+    		"phpcs:apply" : "php-cs-fixer fix --verbose --diff",
+
+        "phpunit"        : "phpunit --testdox",
+
         "test": [
             "@phpcs",
             "@phpunit"
