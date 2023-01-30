@@ -1,25 +1,34 @@
 <?php
+
+/**
+ * germania-kg/fabricsapi-client
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Germania\FabricsApiClient;
 
+use Germania\Cache\CacheCallable;
 use Germania\Fabrics\FabricInterface;
-use Germania\Fabrics\FabricNotFoundException;
-
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-use Germania\Cache\CacheCallable;
-use Psr\Cache\CacheItemPoolInterface;
-
 class CacheFabricsApiClient implements FabricsApiClientInterface
 {
-
     use LoggerAwareTrait;
 
     /**
      * @var FabricsApiClientInterface
      */
     public $api_client;
+
+    /**
+     * @var string
+     */
+    public $cache_key_separator = '|';
 
     /**
      * @var CacheItemPoolInterface
@@ -32,21 +41,14 @@ class CacheFabricsApiClient implements FabricsApiClientInterface
     protected $cache_lifetime;
 
     /**
-     * @var string
-     */
-    public $cache_key_separator = "|";
-
-    /**
      * @var callable
      */
     protected $cache_callable;
 
-
     /**
-     * @param FabricsApiClientInterface $api_client
-     * @param CacheItemPoolInterface    $cache_itempool PSR-6 Cache Item Pool
-     * @param int                       $cache_lifetime Cache lifetime in seconds
-     * @param LoggerInterface|null      $logger         Optional: PSR-3 Logger
+     * @param CacheItemPoolInterface $cache_itempool PSR-6 Cache Item Pool
+     * @param int                    $cache_lifetime Cache lifetime in seconds
+     * @param null|LoggerInterface   $logger         Optional: PSR-3 Logger
      */
     public function __construct(FabricsApiClientInterface $api_client, CacheItemPoolInterface $cache_itempool, int $cache_lifetime, LoggerInterface $logger = null)
     {
@@ -54,43 +56,39 @@ class CacheFabricsApiClient implements FabricsApiClientInterface
         $this->cache_itempool = $cache_itempool;
         $this->cache_lifetime = $cache_lifetime;
 
-        $this->setLogger( $logger ?: new NullLogger);
-        $this->cache_callable = new CacheCallable($this->cache_itempool, $this->cache_lifetime, function() { return null; }, $this->logger);
+        $this->setLogger($logger ?: new NullLogger());
+        $this->cache_callable = new CacheCallable($this->cache_itempool, $this->cache_lifetime, function () { return null; }, $this->logger);
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function collection( string $collection, string $search = null, $sort = null ) : iterable
+    public function collection(string $collection, string $search = null, $sort = null): iterable
     {
-        $cache_key_data = array(
-            "search",
-            $collection
-        );
+        $cache_key_data = [
+            'search',
+            $collection,
+        ];
 
         if ($search) {
-            $cache_key_data[] = "$search";
+            $cache_key_data[] = "{$search}";
         }
 
         if ($sort) {
-            $cache_key_data[] = "sort=$sort";
+            $cache_key_data[] = "sort={$sort}";
         }
 
-        $cache_key = implode( $this->cache_key_separator, $cache_key_data);
+        $cache_key = implode($this->cache_key_separator, $cache_key_data);
 
-
-        $cacheResult =  ($this->cache_callable)($cache_key, function() use ( $collection, $search, $sort) {
+        $cacheResult = ($this->cache_callable)($cache_key, function () use ($collection, $search, $sort) {
             try {
-
                 return $this->api_client->collection($collection, $search, $sort);
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 return ExceptionSimplifiedExcerpt::fromThrowable($e);
             }
         });
 
-        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+        if ($cacheResult instanceof ExceptionSimplifiedExcerpt) {
             throw $cacheResult->restoreThrowable();
         }
 
@@ -98,110 +96,96 @@ class CacheFabricsApiClient implements FabricsApiClientInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
      * @return \ArrayIterator
      */
-    public function collections( ) : iterable
+    public function collections(): iterable
     {
-        $cache_key = $this->createCacheKey("list", "collections");
-        $cacheResult =  ($this->cache_callable)($cache_key, function() {
+        $cache_key = $this->createCacheKey('list', 'collections');
+        $cacheResult = ($this->cache_callable)($cache_key, function () {
             try {
                 return $this->api_client->collections();
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 return ExceptionSimplifiedExcerpt::fromThrowable($e);
             }
         });
 
-        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+        if ($cacheResult instanceof ExceptionSimplifiedExcerpt) {
             throw $cacheResult->restoreThrowable();
         }
 
         return $cacheResult;
     }
 
-
-
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function collectionTransparencies( string $collection ) : iterable
+    public function collectionTransparencies(string $collection): iterable
     {
-        $cache_key = $this->createCacheKey("search", $collection, "transparencies");
+        $cache_key = $this->createCacheKey('search', $collection, 'transparencies');
 
-        $cacheResult =  ($this->cache_callable)($cache_key, function() use ( $collection) {
+        $cacheResult = ($this->cache_callable)($cache_key, function () use ($collection) {
             try {
                 return $this->api_client->collectionTransparencies($collection);
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 return ExceptionSimplifiedExcerpt::fromThrowable($e);
             }
         });
 
-        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+        if ($cacheResult instanceof ExceptionSimplifiedExcerpt) {
             throw $cacheResult->restoreThrowable();
         }
 
         return $cacheResult;
     }
 
-
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function collectionColors( string $collection ) : iterable
+    public function collectionColors(string $collection): iterable
     {
-        $cache_key = $this->createCacheKey("search", $collection, "colors");
+        $cache_key = $this->createCacheKey('search', $collection, 'colors');
 
-        $cacheResult =  ($this->cache_callable)($cache_key, function() use ( $collection) {
+        $cacheResult = ($this->cache_callable)($cache_key, function () use ($collection) {
             try {
                 return $this->api_client->collectionColors($collection);
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 return ExceptionSimplifiedExcerpt::fromThrowable($e);
             }
         });
 
-        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+        if ($cacheResult instanceof ExceptionSimplifiedExcerpt) {
             throw $cacheResult->restoreThrowable();
         }
 
         return $cacheResult;
     }
-
-
-
-
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function fabric( string $collection, string $fabric ) : FabricInterface
+    public function fabric(string $collection, string $fabric): FabricInterface
     {
-        $cache_key = $this->createCacheKey("collections", $collection, "fabrics", $fabric);
+        $cache_key = $this->createCacheKey('collections', $collection, 'fabrics', $fabric);
 
-        $cacheResult = ($this->cache_callable)($cache_key, function() use ( $collection, $fabric) {
+        $cacheResult = ($this->cache_callable)($cache_key, function () use ($collection, $fabric) {
             try {
                 return $this->api_client->fabric($collection, $fabric);
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 return ExceptionSimplifiedExcerpt::fromThrowable($e);
             }
         });
 
-        if ($cacheResult instanceOf ExceptionSimplifiedExcerpt) {
+        if ($cacheResult instanceof ExceptionSimplifiedExcerpt) {
             throw $cacheResult->restoreThrowable();
         }
-
 
         return $cacheResult;
     }
 
-
-    protected function createCacheKey( ...$params )
+    protected function createCacheKey(...$params)
     {
         return implode($this->cache_key_separator, $params);
     }
-
 }
