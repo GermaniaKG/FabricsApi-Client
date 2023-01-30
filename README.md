@@ -7,7 +7,7 @@
 
 # Germania KG · FabricsAPI client
 
-[![Tests](https://github.com/GermaniaKG/FabricsApi-Client//actions/workflows/tests.yml/badge.svg)](https://github.com/GermaniaKG/FabricsApi-Client//actions/workflows/tests.yml)
+[![Packagist](https://img.shields.io/packagist/v/germania-kg/fabricsapi-client.svg?style=flat)](https://packagist.org/packages/germania-kg/fabricsapi-client) [![PHP version](https://img.shields.io/packagist/php-v/germania-kg/fabricsapi-client.svg)](https://packagist.org/packages/germania-kg/fabricsapi-client) [![Tests](https://github.com/GermaniaKG/FabricsApi-Client/actions/workflows/tests.yml/badge.svg)](https://github.com/GermaniaKG/FabricsApi-Client/actions/workflows/tests.yml)
 
 
 ## Installation
