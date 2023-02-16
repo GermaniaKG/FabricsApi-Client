@@ -16,8 +16,6 @@
 composer require germania-kg/fabricsapi-client "^4.0"
 ```
 
-
-
 ## Instantiation
 
 The **FabricsApiClient** requures a **Guzzle client** with configured API base URL at hand:
